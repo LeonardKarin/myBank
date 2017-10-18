@@ -414,12 +414,12 @@ namespace mBank
     }
 
     /**
-     * function which build the P-56 for UPI
+     * function which build a specific field
      * @see it follow the scheme : LLL PAR LLL 01 LL DATA, e.g : 026PAR02001164587545896523546
      * @param pzr_source const string reference : paymentAccountRef
      * @return string : paymentAccountData
      */
-    std::string build_56(const std::string & pzr_source)
+    std::string build_sf(const std::string & pzr_source)
     {
         std::string lz_p56, lz_dataL;
         
