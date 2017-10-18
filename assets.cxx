@@ -139,7 +139,7 @@ namespace mBank
     }
 
     /**
-     * function statMTIList cutter which extract the MTI in a string to a vector<int>
+     * function sml_cut cutter which extract ID in a string to a vector<int>
      * @see pzr_source must be formatted as follow : 4000,8000,4580 you can use whatever you want as a delimiter char, but keep a constant use of 4 numeric chars followed by a delimiter only if another MTI will be used.
      * @param const string reference pzr_source
      * @param vector<byte4> reference pvr_dest
