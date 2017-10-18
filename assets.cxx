@@ -764,13 +764,5 @@ namespace mBank
 
 int main(int argc, char *argv[])
 {
-    std::string a("545789652"), b;
-    a = mBank::to_ebcdic(a);
-    
-    for(int i = 0; i < a.size(); ++i)
-    {
-        b.append(mBank::exp2_byte(a[i]));
-    }
-    
-    std::cout << b << std::endl;
+    //empty
 };
