@@ -758,6 +758,18 @@ namespace mBank
         for(int l4_size = 0; l4_size < pzr_source.size(); pzr_source[l4_size] = ka_ebcdic[128 + pzr_source[l4_size++]]);
         return pzr_source;
     }
+    
+    /**
+     * method setBit in order to swap to true one byte 
+     * @see something like std::bitset::flip but for our bitmaps
+     * @param p1p_bitmap char pointer
+     * @param p2r_field const short reference
+     * @return void
+     */
+    void setBit(char * p1p_bitmap, const short & p2r_field)
+    {
+        p1p_bitmap[((p2r_field -1) / 8)] |= ((1 * pow(2, abs(((p2r_field -1) % 8) - 7))) & 0xFF);
+    }
      
 }; //mBank::
 
