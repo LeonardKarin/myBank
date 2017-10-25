@@ -91,6 +91,12 @@ namespace mBank
     std::vector<int> mv_areDigits;
     std::vector<int>::iterator mitt_areDigits;
     std::vector<std::pair<int, int> > mv_rangeDigits;
+    enum dt_type
+    { 
+       CCYY_MM, 
+       YYYY_MM_DDTHH_MM_SSz, 
+       YYYY_MM_DD 
+    };
     
     //R/O MM [END]
     
@@ -782,13 +788,13 @@ namespace mBank
      * function which check the conformity for special date time values
      * @see will check : size, digits, delimitors, range correctness of date and time values. Each non-digit char will be concider as a delimitor
      * @param pzr_datetime const string reference
-     * @param p1r_opt const byte1 reference
+     * @param dt_type const enum reference
      * @return bool true if conformity approved
      * p1r_opt : 1 - CCYY-MM
      *           2 - YYYY-MM-DDTHH:MM:SSz
      *           3 - YYYY-MM-DD
      */
-    bool dt_conformityCheck(const std::string & pzr_datetime, const char & p1r_opt)
+    bool dt_conformityCheck(const std::string & pzr_datetime, const dt_type & p1r_opt)
     {
         //fetch null assignment for all idx
         for(mitt_areDigits = mv_areDigits.begin(); mitt_areDigits != mv_areDigits.end(); *mitt_areDigits++ = 0);
@@ -801,7 +807,7 @@ namespace mBank
         switch(p1r_opt)
         {
            //CCYY-MM
-           case 1:
+           case 0:
               if(pzr_datetime.size() != 7 || 
                  pzr_datetime[4] != 0x2D)
                  return false;
@@ -811,7 +817,7 @@ namespace mBank
               mv_areDigits[2] = ((pzr_datetime[5] & 0x0F)*10 + (pzr_datetime[6] & 0x0F));
            break;
            //YYYY-MM-DDTHH:MM:SSz
-           case 2:
+           case 1:
               if(pzr_datetime.size() != 20 || 
                  pzr_datetime[10] != 0x54 || pzr_datetime[13] != 0x3A || pzr_datetime[16] != 0x3A || pzr_datetime[19] != 0x7A ||
                  (pzr_datetime.substr(11,2) + pzr_datetime.substr(14,2) + pzr_datetime.substr(17,2)).find_first_not_of("0123456789") != std::string::npos)
@@ -821,7 +827,7 @@ namespace mBank
               mv_areDigits[5] = ((pzr_datetime[14] & 0x0F)*10 + (pzr_datetime[15] & 0x0F));
               mv_areDigits[6] = ((pzr_datetime[17] & 0x0F)*10 + (pzr_datetime[18] & 0x0F));
            //YYYY-MM-DD
-           case 3:
+           case 2:
               if(pzr_datetime.size() != 7 || 
                  pzr_datetime[4] != 0x2D || pzr_datetime[7] != 0x2D ||
                  (pzr_datetime.substr(8,2)).find_first_not_of("0123456789") != std::string::npos)
