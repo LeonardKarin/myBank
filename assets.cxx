@@ -85,6 +85,13 @@ namespace mBank
      */
     static const unsigned int k4_targetField = 11, k4_msgIdLength = 4, k4_headerLength = 40;
     
+    /**
+     * @see params for the date&time conformity check, range computing
+     */
+    std::vector<int> mv_areDigits;
+    std::vector<int>::iterator mitt_areDigits;
+    std::vector<std::pair<int, int> > mv_rangeDigits;
+    
     //R/O MM [END]
     
     //M/F LISTING :
@@ -770,11 +777,98 @@ namespace mBank
     {
         p1p_bitmap[((p2r_field -1) / 8)] |= ((1 * pow(2, abs(((p2r_field -1) % 8) - 7))) & 0xFF);
     }
+    
+    /**
+     * function which check the conformity for special date time values
+     * @see will check : size, digits, delimitors, range correctness of date and time values. Each non-digit char will be concider as a delimitor
+     * @param pzr_datetime const string reference
+     * @param p1r_opt const byte1 reference
+     * @return bool true if conformity approved
+     * p1r_opt : 1 - CCYY-MM
+     *           2 - YYYY-MM-DDTHH:MM:SSz
+     *           3 - YYYY-MM-DD
+     */
+    bool dt_conformityCheck(const std::string & pzr_datetime, const char & p1r_opt)
+    {
+        //fetch null assignment for all idx
+        for(mitt_areDigits = mv_areDigits.begin(); mitt_areDigits != mv_areDigits.end(); *mitt_areDigits++ = 0);
+
+        if((pzr_datetime.substr(0,4) +
+           pzr_datetime.substr(6,2)).find_first_not_of("0123456789") != std::string::npos)
+          return false;
+
+        //extract template scheme
+        switch(p1r_opt)
+        {
+           //CCYY-MM
+           case 1:
+              if(pzr_datetime.size() != 7 || 
+                 pzr_datetime[4] != 0x2D)
+                 return false;
+
+              mv_areDigits[0] = ((pzr_datetime[0] & 0x0F)*10 + (pzr_datetime[1] & 0x0F));
+              mv_areDigits[1] = ((pzr_datetime[2] & 0x0F)*10 + (pzr_datetime[3] & 0x0F));
+              mv_areDigits[2] = ((pzr_datetime[5] & 0x0F)*10 + (pzr_datetime[6] & 0x0F));
+           break;
+           //YYYY-MM-DDTHH:MM:SSz
+           case 2:
+              if(pzr_datetime.size() != 20 || 
+                 pzr_datetime[10] != 0x54 || pzr_datetime[13] != 0x3A || pzr_datetime[16] != 0x3A || pzr_datetime[19] != 0x7A ||
+                 (pzr_datetime.substr(11,2) + pzr_datetime.substr(14,2) + pzr_datetime.substr(17,2)).find_first_not_of("0123456789") != std::string::npos)
+                 return false;
+
+              mv_areDigits[4] = ((pzr_datetime[11] & 0x0F)*10 + (pzr_datetime[12] & 0x0F));
+              mv_areDigits[5] = ((pzr_datetime[14] & 0x0F)*10 + (pzr_datetime[15] & 0x0F));
+              mv_areDigits[6] = ((pzr_datetime[17] & 0x0F)*10 + (pzr_datetime[18] & 0x0F));
+           //YYYY-MM-DD
+           case 3:
+              if(pzr_datetime.size() != 7 || 
+                 pzr_datetime[4] != 0x2D || pzr_datetime[7] != 0x2D ||
+                 (pzr_datetime.substr(8,2)).find_first_not_of("0123456789") != std::string::npos)
+                 return false;
+
+              mv_areDigits[1] = ((pzr_datetime[0] & 0x0F)*1000 + (pzr_datetime[1] & 0x0F)*100 + (pzr_datetime[2] & 0x0F)*10 + (pzr_datetime[3] & 0x0F));
+              mv_areDigits[2] = ((pzr_datetime[5] & 0x0F)*10 + (pzr_datetime[6] & 0x0F));
+              mv_areDigits[3] = ((pzr_datetime[8] & 0x0F)*10 + (pzr_datetime[9] & 0x0F));
+           break;
+        }
+
+        //decade check is useless since all number accepted between the range of [00;99]
+        if(mv_areDigits[1] < 100) 
+            mv_areDigits[1] = 0;
+
+        //date time conformity
+        for(char l4_i = 0; l4_i < mv_areDigits.size(); ++l4_i)
+        {
+           if(mv_areDigits[l4_i] && (mv_areDigits[l4_i] < mv_rangeDigits[l4_i].first || mv_areDigits[l4_i] > mv_rangeDigits[l4_i].second))
+              return false;
+        }
+        
+        return true;
+    }
      
 }; //mBank::
 
 
 int main(int argc, char *argv[])
 {
+    //initialisation vecteur pour check de conformite date time
+    mv_areDigits = std::vector<int>(7, 0);
+    
+    //century check [20;22]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(20, 22));
+    //year check [1970;2100] since Epoch
+    mv_rangeDigits.push_back(std::make_pair<int, int>(1970, 2100));
+    //month check [01;12]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(01, 12));
+    //day check [01;31]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(01, 31));
+    //hours check [00;23]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 23));
+    //minutes check [00;59]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
+    //seconds check [00;59]
+    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
+    
     //empty
 };
