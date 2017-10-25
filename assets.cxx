@@ -837,6 +837,8 @@ namespace mBank
               mv_areDigits[2] = ((pzr_datetime[5] & 0x0F)*10 + (pzr_datetime[6] & 0x0F));
               mv_areDigits[3] = ((pzr_datetime[8] & 0x0F)*10 + (pzr_datetime[9] & 0x0F));
            break;
+           default:
+              return false;
         }
 
         //decade check is useless since all number accepted between the range of [00;99]
