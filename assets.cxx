@@ -20,6 +20,23 @@
 //math banking 
 namespace mBank 
 {
+    /**
+     * template for const vector initialisation
+     * @see COFU (construct on first use)
+     * @params vector + arguments to insert by overloading operator '()'
+     * @return const vector
+     */
+    template <typename T>
+    struct constVec : public std::vector<T>
+    {
+        constVec(const T & ptr_temp){(*this)(ptr_temp);}
+        constVec & operator()(const T & ptr_temp)
+        {
+            this->push_back(ptr_temp);
+            return *this;
+        }
+    };
+   
     //R/O MM [START]
     
     /**
@@ -90,9 +107,17 @@ namespace mBank
     /**
      * @see params for the date&time conformity check, range computing
      */
-    std::vector<int> mv_areDigits;
+    std::vector<int> mv_areDigits = std::vector<int>(7, 0);
     std::vector<int>::iterator mitt_areDigits;
-    std::vector<std::pair<int, int> > mv_rangeDigits;
+    const std::vector<std::pair<int, int> > mv_rangeDigits = 
+        constVec<std::pair<int, int> >(std::make_pair<int, int>(20, 22))      //century check [20;22]
+                                      (std::make_pair<int, int>(1970, 2100))  //year check [1970;2100] since Epoch
+                                      (std::make_pair<int, int>(01, 12))      //month check [01;12]
+                                      (std::make_pair<int, int>(01, 31))      //day check [01;31]
+                                      (std::make_pair<int, int>(00, 23))      //hours check [00;23]
+                                      (std::make_pair<int, int>(00, 59))      //minutes check [00;59]
+                                      (std::make_pair<int, int>(00, 59));     //seconds check [00;59]
+    
     enum dt_type
     { 
        CCYY_MM, 
@@ -101,37 +126,6 @@ namespace mBank
     };
     
     //R/O MM [END]
-    
-    //M/F LISTING :
-    /*
-        static bool isLitEnd()
-        void e_swap(uint16_t & p4r_val)
-        bool sml_cut(const std::string & pzr_source, std::vector<int> & pvr_dest)
-        bool char_inc(std::string & pzr_source)
-        int nb_str(std::string & pzr_source)
-        std::vector<bool> bit_bol(const std::string & pzr_source)
-        uint8_t bind_(const char & p1r_left, const char & p1r_right)
-        uint16_t bind_(const uint8_t & p1r_left, const uint8_t & p1r_right)
-        uint32_t bind_(const uint16_t & p1r_left, const uint16_t & p1r_right)
-        uint64_t bind_(const uint32_t & p1r_left, const uint32_t & p1r_right)
-        std::string & str_unpad(std::string & pzr_source, const char & p1r_unpad, const bool & p1r_dir)
-        std::string & str_padchar(std::string & pzr_source, const char & p1r_padchar, const int p4r_length, const bool & p1r_dir)
-        std::vector<int> merge_bit(const std::string & pzr_sourceA, const std::string & pzr_sourceB)
-        const std::string & subref(const unsigned short & p2r_pos, const unsigned short & p2r_qt, std::string & pzr_s)
-        bool sql_spe(const std::string & pzr_tabName, const std::string & pzr_fetch, const std::vector<std::pair<std::string, std::string> > & pvr_colQual, std::map<int, std::string> & pmr_queryText)
-        bool is_olc(const std::string & pzr_source, const char & p1r_exp)
-        std::map<std::string, std::string> un_tkn(const std::string & pzr_source, const int & p4r_tagSize, const int & p4r_lenSize, const std::map<std::string, int> & pmr_scheme)
-        std::string build_56(const std::string & pzr_source)
-        const char & showRawByte(const char & p1r_val)
-        std::string showBitmapBitStatus(const std::string & pzr_val)
-        unsigned int decodeLength(const unsigned int & pb1r_cutPos, const std::string & pzr_netMsg)
-        std::string ascii2hexf(const std::string & pzr_source)
-        std::string hexf2ascii(const std::string & pzr_source)
-        bool decode(const std::string & pzr_mcMsg)
-        std::bitset<32> to_b64(const char & p1r_b1 = 0x00, const char & p1r_b2 = 0x00, const char & p1r_b3 = 0x00)
-        std::string ex_b64(const std::bitset<32> & pcr_32bits)
-        std::string & sd_c3(std::string & pzr_b255)
-    */
     
     /**
      * endianess function
@@ -787,7 +781,7 @@ namespace mBank
     }
     
     /**
-     * function which check the conformity for special date time values
+     * function which'll check the conformity for special date & time values
      * @see will check : size, digits, delimitors, range correctness of date and time values. Each non-digit char will be concider as a delimitor
      * @param pzr_datetime const string reference
      * @param dt_type const enum reference
@@ -843,7 +837,7 @@ namespace mBank
               return false;
         }
 
-        //decade check is useless since all number accepted between the range of [00;99]
+        //decades check is useless since all numbers are accepted between the range of [00;99] (post 20[00 + x] and before 19[99 - x])
         if(mv_areDigits[1] < 100) 
             mv_areDigits[1] = 0;
 
@@ -859,26 +853,7 @@ namespace mBank
      
 }; //mBank::
 
-
 int main(int argc, char *argv[])
 {
-    //initialisation vecteur pour check de conformite date time
-    mBank::mv_areDigits = std::vector<int>(7, 0);
-    
-    //century check [20;22]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(20, 22));
-    //year check [1970;2100] since Epoch
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(1970, 2100));
-    //month check [01;12]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(01, 12));
-    //day check [01;31]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(01, 31));
-    //hours check [00;23]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 23));
-    //minutes check [00;59]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
-    //seconds check [00;59]
-    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
-    
     //empty
 };
