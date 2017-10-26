@@ -10,10 +10,12 @@
 #include <map>
 #include <time.h>
 
+// Maintained by Lastorm-tech dev #rt1
+
 // All feature dev : x86_64-redhat-linux arch_32=i686 UTF-8
 // as compiled for : C++98 -O3 -Wall (GCC 4.4.7) -fopenmp
 
-// can be fast comp : g++ test.cxx -o main -lrt
+// can be fast comp : g++ assets.cxx -o main -lrt
 
 //math banking 
 namespace mBank 
@@ -781,7 +783,7 @@ namespace mBank
      */
     void setBit(char * p1p_bitmap, const short & p2r_field)
     {
-        p1p_bitmap[((p2r_field -1) / 8)] |= ((1 * pow(2, abs(((p2r_field -1) % 8) - 7))) & 0xFF);
+        p1p_bitmap[((p2r_field -1) / 8)] |= (static_cast<int>(1 * pow(2, abs(((p2r_field -1) % 8) - 7))) & 0xFF);
     }
     
     /**
@@ -861,22 +863,22 @@ namespace mBank
 int main(int argc, char *argv[])
 {
     //initialisation vecteur pour check de conformite date time
-    mv_areDigits = std::vector<int>(7, 0);
+    mBank::mv_areDigits = std::vector<int>(7, 0);
     
     //century check [20;22]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(20, 22));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(20, 22));
     //year check [1970;2100] since Epoch
-    mv_rangeDigits.push_back(std::make_pair<int, int>(1970, 2100));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(1970, 2100));
     //month check [01;12]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(01, 12));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(01, 12));
     //day check [01;31]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(01, 31));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(01, 31));
     //hours check [00;23]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 23));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 23));
     //minutes check [00;59]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
     //seconds check [00;59]
-    mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
+    mBank::mv_rangeDigits.push_back(std::make_pair<int, int>(00, 59));
     
     //empty
 };
