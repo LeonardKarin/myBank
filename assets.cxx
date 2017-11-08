@@ -796,7 +796,7 @@ namespace mBank
         for(mitt_areDigits = mv_areDigits.begin(); mitt_areDigits != mv_areDigits.end(); *mitt_areDigits++ = 0);
 
         if((pzr_datetime.substr(0,4) +
-           pzr_datetime.substr(6,2)).find_first_not_of("0123456789") != std::string::npos)
+           pzr_datetime.substr(5,2)).find_first_not_of("0123456789") != std::string::npos)
           return false;
 
         //extract template scheme
@@ -824,8 +824,7 @@ namespace mBank
               mv_areDigits[6] = ((pzr_datetime[17] & 0x0F)*10 + (pzr_datetime[18] & 0x0F));
            //YYYY-MM-DD
            case 2:
-              if(pzr_datetime.size() != 7 || 
-                 pzr_datetime[4] != 0x2D || pzr_datetime[7] != 0x2D ||
+              if(pzr_datetime[4] != 0x2D || pzr_datetime[7] != 0x2D ||
                  (pzr_datetime.substr(8,2)).find_first_not_of("0123456789") != std::string::npos)
                  return false;
 
