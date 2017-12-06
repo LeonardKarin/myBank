@@ -849,6 +849,27 @@ namespace mBank
         
         return true;
     }
+    
+    /**
+     * function which check bitstate inside 1 byte then fetch the affiliated value from an array.
+     * @see check the pzr_in[0] bit state and get the value of pzr_match (e.g) : pzr_in[0] = 00010000 = 5 (bit pos right to left) = pzr_match[5] to pzr_ref
+     * @param pzr_in const string reference
+     * @param pzr_ref string reference
+     * @param pzr_match const string reference truncated as the converted to POSCardHolAuthMethCode
+     * @return bool state of the conversion
+     */
+    bool bitmap_conv(const std::string & pzr_in, std::string & pzr_ref, const std::string & pzr_match)
+    {
+       //stay in range of 4bytes and a non null mask
+       if(pzr_in.size() > 3 && !(pzr_in[0] & 0x00))
+       {
+          char l1_i = 0;
+          //move each bits to get the flag one inside the range of 1byte
+          while(!((pzr_in[0] >> l1_i) & 0x01) && l1_i++ < __CHAR_BIT__);
+          //if our flag is out of scope false, else assign the value and return true
+          return (l1_i > pzr_match.size()) ? false : (pzr_ref.assign(string(1, pzr_match[l1_i]))[0] & 0xFF);
+       }
+    }
      
 }; //mBank::
 
