@@ -855,7 +855,7 @@ namespace mBank
      * @see check the pzr_in[0] bit state and get the value of pzr_match (e.g) : pzr_in[0] = 00010000 = 5 (bit pos right to left) = pzr_match[5] to pzr_ref
      * @param pzr_in const string reference
      * @param pzr_ref string reference
-     * @param pzr_match const string reference truncated as the converted to POSCardHolAuthMethCode
+     * @param pzr_match const string reference truncated 
      * @return bool state of the conversion
      */
     bool bitmap_conv(const std::string & pzr_in, std::string & pzr_ref, const std::string & pzr_match)
