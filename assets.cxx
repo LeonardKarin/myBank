@@ -869,6 +869,7 @@ namespace mBank
           //if our flag is out of scope false, else assign the value and return true
           return (l1_i > pzr_match.size()) ? false : (pzr_ref.assign(string(1, pzr_match[l1_i]))[0] & 0xFF);
        }
+       return false;
     }
      
 }; //mBank::
