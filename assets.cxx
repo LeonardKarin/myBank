@@ -871,6 +871,87 @@ namespace mBank
        }
        return false;
     }
+    
+    //construct on first use
+    static vector<pair<byte1, ubyte1> > s1v_fieldLength = 
+       constVec<pair<byte1, ubyte1> >(make_pair<byte1, ubyte1>( 8, 0))  //  0 : bitmap
+                                     (make_pair<byte1, ubyte1>( 8, 0))  //  1 : bitmap secondaire
+                                     (make_pair<byte1, ubyte1>(-1, 0))  //  2 : cardnumber
+                                     (make_pair<byte1, ubyte1>( 3, 0))  //  3 : processing code
+                                     (make_pair<byte1, ubyte1>( 6, 0))  //  4 : transactionAmt
+                                     (make_pair<byte1, ubyte1>( 0, 0))  //  5 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  //  6 : -
+                                     (make_pair<byte1, ubyte1>( 5, 0))  //  7 : transmitDateTime
+                                     (make_pair<byte1, ubyte1>( 0, 0))  //  8 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  //  9 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 10 : -
+                                     (make_pair<byte1, ubyte1>( 3, 0))  // 11 : auditNumber
+                                     (make_pair<byte1, ubyte1>( 3, 0))  // 12 : transLocalTime
+                                     (make_pair<byte1, ubyte1>( 2, 0))  // 13 : transLocalDate
+                                     (make_pair<byte1, ubyte1>( 2, 0))  // 14 : expirationDate
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 15 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 16 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 17 : -
+                                     (make_pair<byte1, ubyte1>( 2, 0))  // 18 : MCC
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 19 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 20 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 21 : -
+                                     (make_pair<byte1, ubyte1>( 2, 0))  // 22 : POSEntryMode
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 23 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 24 : -
+                                     (make_pair<byte1, ubyte1>( 1, 0))  // 25 : msgReasonCode
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 26 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 27 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 28 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 29 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 30 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 31 : -
+                                     (make_pair<byte1, ubyte1>(-1, 0))  // 32 : acquiringInstId
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 33 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 34 : -
+                                     (make_pair<byte1, ubyte1>(-1, 0))  // 35 : track2Data
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 36 : -
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 37 : -
+                                     (make_pair<byte1, ubyte1>( 3, 0))  // 38 : authId
+                                     (make_pair<byte1, ubyte1>( 1, 0))  // 39 : responseCode
+                                     (make_pair<byte1, ubyte1>( 0, 0))  // 40 : -
+                                     (make_pair<byte1, ubyte1>( 6, 0)); // 41 : terminalId
+    
+    /**
+     * Function which retrive the starting position to substring the binding key fields from the raw netData.
+     * @see retrive each first position, push_back each in a vector then return it
+     * @param vector<pair<ubyte1, ubyte1> > reference
+     * @param const string reference 
+     * @param const string reference
+     * @return vector<pair<ubyte1, ubyte1> > with cut capacity position's
+     */
+    vector<pair<ubyte1, ubyte1> > & computePosition(vector<pair<ubyte1, ubyte1> > & pv1_fields, const string & pzr_bitmapRaw, const string & pzr_rawNetData)
+    {
+        string lz_bitmapRaw(pzr_bitmapRaw);
+
+        //feed the presence factor of our vector field
+        for(ubyte1 lu1_byte = 0, lu1_bit = 1; lu1_byte < lz_bitmapRaw.size(); ++lu1_byte)
+        {
+           lz_bitmapRaw[lu1_byte] -= (lz_bitmapRaw[lu1_byte] > 64) ? 55 : 0;
+           s1v_fieldLength[lu1_bit++].second = ((pzr_bitmapRaw[lu1_byte] & 0x0F) & 0x01);
+           s1v_fieldLength[lu1_bit++].second = (((pzr_bitmapRaw[lu1_byte] & 0x0F) >> 1) & 0x01);
+           s1v_fieldLength[lu1_bit++].second = (((pzr_bitmapRaw[lu1_byte] & 0x0F) >> 2) & 0x01);
+           s1v_fieldLength[lu1_bit++].second = (((pzr_bitmapRaw[lu1_byte] & 0x0F) >> 3) & 0x01);
+        }
+
+        //register the starting position for extracting the binding key fields
+        ubyte4 l4_cutCapacity = 0;
+        for(ubyte1 lu1_itt = 0, lu1_jtt; lu1_itt < s1v_fieldLength.size(); ++lu1_itt)
+        {
+           for(lu1_jtt = 0; lu1_jtt < pv1_fields.size(); ++lu1_jtt)
+           {
+              if(pv1_fields[lu1_jtt].first == lu1_itt)
+                 pv1_fields[lu1_jtt].second = l4_cutCapacity;
+           }
+           l4_cutCapacity += (s1v_fieldLength[lu1_itt].first > 0) ? s1v_fieldLength[lu1_itt].first * 2 : decodeLength(l4_cutCapacity, pzr_rawNetData) + 2;
+        }
+        return pv1_fields;
+    }
      
 }; //mBank::
 
